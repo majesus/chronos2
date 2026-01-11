@@ -1,0 +1,2317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Chronos - Minimal Timeline for Thoughtful Planning">
+    <title>Chronos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Refined Neutral Palette */
+            --bg-primary: #fcfcfb;
+            --bg-secondary: #f6f5f4;
+            --bg-tertiary: #eae9e7;
+            --bg-elevated: #ffffff;
+            --text-primary: #1a1918;
+            --text-secondary: #5c5a57;
+            --text-tertiary: #9c9990;
+            --text-muted: #c4c2bc;
+            --border: rgba(26, 25, 24, 0.08);
+            --border-strong: rgba(26, 25, 24, 0.12);
+            
+            /* Category Colors - Muted, Sophisticated */
+            --cat-work: #3b6b9c;
+            --cat-admin: #7c6a9c;
+            --cat-academic: #4a8c8c;
+            --cat-research: #6b8c5c;
+            --cat-personal: #b8864b;
+            
+            /* Shadows */
+            --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+            --shadow-lg: 0 16px 48px rgba(0,0,0,0.10);
+            --shadow-xl: 0 24px 64px rgba(0,0,0,0.14);
+            --shadow-glow: 0 0 0 1px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.12);
+            
+            /* Radii */
+            --radius-xs: 6px;
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --radius-full: 9999px;
+            
+            /* Transitions */
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+            --duration-fast: 0.15s;
+            --duration-normal: 0.25s;
+            --duration-slow: 0.4s;
+            
+            /* Safe Areas */
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #0f0f0e;
+                --bg-secondary: #1a1918;
+                --bg-tertiary: #262523;
+                --bg-elevated: #1f1e1d;
+                --text-primary: #f5f5f4;
+                --text-secondary: #a8a6a2;
+                --text-tertiary: #6b6965;
+                --text-muted: #4a4845;
+                --border: rgba(255, 255, 255, 0.06);
+                --border-strong: rgba(255, 255, 255, 0.10);
+                --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
+                --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+                --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
+                --shadow-lg: 0 16px 48px rgba(0,0,0,0.5);
+                --shadow-glow: 0 0 0 1px rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.4);
+                --cat-work: #6b9bd1;
+                --cat-admin: #a893c9;
+                --cat-academic: #6bbaba;
+                --cat-research: #8fb87a;
+                --cat-personal: #d4a574;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            height: 100%;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow: hidden;
+        }
+
+        /* App Container */
+        .app {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding-top: var(--safe-top);
+            max-width: 520px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        @media (min-width: 520px) {
+            .app {
+                border-left: 1px solid var(--border);
+                border-right: 1px solid var(--border);
+            }
+        }
+
+        /* Header - Minimal & Elegant */
+        .header {
+            flex-shrink: 0;
+            padding: 16px 20px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 26px;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        .logo-dot {
+            width: 5px;
+            height: 5px;
+            background: var(--cat-personal);
+            border-radius: 50%;
+            margin-left: 2px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-bottom: 6px;
+        }
+
+        .header-meta {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            transition: all var(--duration-fast) var(--ease-smooth);
+            position: relative;
+        }
+
+        .icon-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--text-primary);
+            opacity: 0;
+            border-radius: inherit;
+            transition: opacity var(--duration-fast) var(--ease-smooth);
+        }
+
+        .icon-btn:hover::before {
+            opacity: 0.05;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.92);
+        }
+
+        .icon-btn:active::before {
+            opacity: 0.08;
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 1.75;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Current Date Display */
+        .current-date {
+            padding: 0 20px 16px;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .current-day {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 42px;
+            font-weight: 400;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .current-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .current-weekday {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .current-month {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-tertiary);
+        }
+
+        /* Date Carousel */
+        .date-carousel {
+            flex-shrink: 0;
+            padding: 0 0 16px;
+            position: relative;
+        }
+
+        .date-carousel::before,
+        .date-carousel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 16px;
+            width: 32px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .date-carousel::before {
+            left: 0;
+            background: linear-gradient(90deg, var(--bg-primary), transparent);
+        }
+
+        .date-carousel::after {
+            right: 0;
+            background: linear-gradient(-90deg, var(--bg-primary), transparent);
+        }
+
+        .dates-track {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            padding: 4px 20px;
+            scroll-behavior: smooth;
+        }
+
+        .dates-track::-webkit-scrollbar {
+            display: none;
+        }
+
+        .date-chip {
+            flex-shrink: 0;
+            min-width: 46px;
+            padding: 8px 4px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-out);
+            scroll-snap-align: center;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            position: relative;
+        }
+
+        .date-chip::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--text-primary);
+            opacity: 0;
+            border-radius: inherit;
+            transition: opacity var(--duration-normal) var(--ease-out);
+        }
+
+        .date-chip:hover::before {
+            opacity: 0.04;
+        }
+
+        .date-chip.selected {
+            background: var(--text-primary);
+        }
+
+        .date-chip.selected::before {
+            display: none;
+        }
+
+        .date-chip.today:not(.selected) .chip-num {
+            color: var(--cat-work);
+        }
+
+        .chip-day {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            position: relative;
+            z-index: 1;
+            transition: color var(--duration-normal) var(--ease-out);
+        }
+
+        .chip-num {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+            transition: color var(--duration-normal) var(--ease-out);
+        }
+
+        .chip-indicator {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transition: all var(--duration-normal) var(--ease-out);
+        }
+
+        .date-chip.has-events .chip-indicator {
+            opacity: 1;
+        }
+
+        .date-chip.selected .chip-day,
+        .date-chip.selected .chip-num {
+            color: var(--bg-primary);
+        }
+
+        .date-chip.selected .chip-indicator {
+            background: var(--bg-primary);
+            opacity: 0.4;
+        }
+
+        /* Timeline */
+        .timeline-wrapper {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .timeline {
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0 20px calc(100px + var(--safe-bottom));
+            scroll-behavior: smooth;
+        }
+
+        .timeline::-webkit-scrollbar {
+            width: 0;
+        }
+
+        /* Time Section */
+        .time-section {
+            position: relative;
+            padding: 0 0 0 52px;
+            min-height: 72px;
+        }
+
+        .time-section::before {
+            content: '';
+            position: absolute;
+            left: 40px;
+            top: 20px;
+            bottom: 0;
+            width: 1px;
+            background: var(--border);
+        }
+
+        .time-section:last-child::before {
+            display: none;
+        }
+
+        .time-marker {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            padding-top: 14px;
+            text-align: right;
+        }
+
+        .time-marker span {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.02em;
+        }
+
+        .time-dot {
+            position: absolute;
+            left: 36px;
+            top: 18px;
+            width: 9px;
+            height: 9px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--bg-primary);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .time-section.has-events .time-dot {
+            background: var(--text-tertiary);
+        }
+
+        .events-list {
+            padding: 8px 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Event Card - Editorial Style */
+        .event-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px 18px;
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-out);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-card::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--event-color, var(--text-muted));
+            opacity: 0.8;
+        }
+
+        .event-card:hover {
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
+        }
+
+        .event-card:active {
+            transform: scale(0.985) translateY(0);
+            box-shadow: none;
+        }
+
+        .event-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .event-time {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            letter-spacing: 0.03em;
+        }
+
+        .event-badge {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--event-color, var(--text-tertiary));
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 3px 8px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xs);
+        }
+
+        .event-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.45;
+            letter-spacing: -0.01em;
+        }
+
+        .event-notes {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 32px;
+        }
+
+        .empty-illustration {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .empty-circle {
+            width: 100%;
+            height: 100%;
+            border: 2px dashed var(--border-strong);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-circle svg {
+            width: 28px;
+            height: 28px;
+            color: var(--text-muted);
+            stroke-width: 1.5;
+        }
+
+        .empty-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .empty-subtitle {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        /* FAB */
+        .fab-container {
+            position: fixed;
+            bottom: calc(24px + var(--safe-bottom));
+            right: 20px;
+            z-index: 100;
+        }
+
+        @media (min-width: 520px) {
+            .fab-container {
+                right: calc(50% - 240px);
+            }
+        }
+
+        .fab {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: var(--text-primary);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-primary);
+            box-shadow: var(--shadow-lg);
+            transition: all var(--duration-normal) var(--ease-spring);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fab::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--bg-primary);
+            opacity: 0;
+            transition: opacity var(--duration-fast);
+        }
+
+        .fab:hover {
+            transform: scale(1.06);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .fab:hover::before {
+            opacity: 0.1;
+        }
+
+        .fab:active {
+            transform: scale(0.94);
+        }
+
+        .fab svg {
+            width: 24px;
+            height: 24px;
+            stroke-width: 2;
+            position: relative;
+            z-index: 1;
+            transition: transform var(--duration-normal) var(--ease-spring);
+        }
+
+        .fab.active svg {
+            transform: rotate(45deg);
+        }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--duration-slow) var(--ease-out);
+            z-index: 200;
+        }
+
+        .modal-backdrop.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            padding: 8px 24px calc(28px + var(--safe-bottom));
+            transform: translateY(100%);
+            transition: transform var(--duration-slow) var(--ease-spring);
+            z-index: 201;
+            max-height: 92vh;
+            overflow-y: auto;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .modal-sheet.visible {
+            transform: translateY(0);
+        }
+
+        @media (min-width: 520px) {
+            .modal-sheet {
+                left: 50%;
+                right: auto;
+                width: 100%;
+                transform: translateX(-50%) translateY(100%);
+            }
+
+            .modal-sheet.visible {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            margin: 8px auto 24px;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .modal-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .modal-close {
+            width: 38px;
+            height: 38px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all var(--duration-fast) var(--ease-smooth);
+        }
+
+        .modal-close:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .modal-close:active {
+            transform: scale(0.92);
+        }
+
+        .modal-close svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+        }
+
+        /* Form */
+        .form-field {
+            margin-bottom: 22px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 15px 18px;
+            font-size: 16px;
+            font-family: inherit;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            outline: none;
+            transition: all var(--duration-fast) var(--ease-smooth);
+        }
+
+        .field-input:focus {
+            border-color: var(--text-primary);
+            background: var(--bg-primary);
+        }
+
+        .field-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        /* Category Pills */
+        .category-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pill {
+            padding: 11px 16px;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-smooth);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            transition: transform var(--duration-fast) var(--ease-spring);
+        }
+
+        .pill:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .pill.active {
+            border-color: currentColor;
+            background: var(--bg-primary);
+        }
+
+        .pill.active .pill-dot {
+            transform: scale(1.2);
+        }
+
+        .pill[data-cat="work"] { color: var(--cat-work); }
+        .pill[data-cat="admin"] { color: var(--cat-admin); }
+        .pill[data-cat="academic"] { color: var(--cat-academic); }
+        .pill[data-cat="research"] { color: var(--cat-research); }
+        .pill[data-cat="personal"] { color: var(--cat-personal); }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 17px;
+            font-size: 15px;
+            font-family: inherit;
+            font-weight: 600;
+            color: var(--bg-primary);
+            background: var(--text-primary);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-smooth);
+            margin-top: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.92;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            width: 100%;
+            padding: 15px;
+            font-size: 14px;
+            font-family: inherit;
+            font-weight: 600;
+            color: #c53030;
+            background: #fef5f5;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-smooth);
+            margin-top: 14px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .btn-danger {
+                background: rgba(197, 48, 48, 0.12);
+            }
+        }
+
+        .btn-danger:hover {
+            background: #fee;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .btn-danger:hover {
+                background: rgba(197, 48, 48, 0.18);
+            }
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 300px;
+            max-width: 85vw;
+            background: var(--bg-primary);
+            border-left: 1px solid var(--border);
+            transform: translateX(100%);
+            transition: transform var(--duration-slow) var(--ease-out);
+            z-index: 202;
+            padding: 24px;
+            padding-top: calc(24px + var(--safe-top));
+            overflow-y: auto;
+        }
+
+        .settings-panel.visible {
+            transform: translateX(0);
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+
+        .settings-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .settings-section {
+            margin-bottom: 28px;
+        }
+
+        .settings-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 14px;
+        }
+
+        .settings-btn {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 14px;
+            font-family: inherit;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-smooth);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        .settings-btn:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .settings-btn:active {
+            transform: scale(0.98);
+        }
+
+        .settings-btn svg {
+            width: 18px;
+            height: 18px;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+        }
+
+        .settings-btn-text {
+            flex: 1;
+        }
+
+        .settings-btn-hint {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .settings-stats {
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: calc(100px + var(--safe-bottom));
+            left: 50%;
+            transform: translateX(-50%) translateY(16px);
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 14px 24px;
+            border-radius: var(--radius-full);
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--duration-normal) var(--ease-spring);
+            z-index: 300;
+            white-space: nowrap;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Hidden file input */
+        .hidden-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Animations */
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .event-card {
+            animation: fadeSlideUp 0.5s var(--ease-out) backwards;
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           LOGIN SCREEN
+           ══════════════════════════════════════════════════════════════ */
+        
+        .login-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+            z-index: 1000;
+            transition: opacity 0.4s var(--ease-out), visibility 0.4s;
+        }
+
+        .login-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .login-logo {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 42px;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            margin-bottom: 48px;
+        }
+
+        .login-form {
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .login-field {
+            margin-bottom: 24px;
+        }
+
+        .login-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 20px;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            outline: none;
+            text-align: center;
+            letter-spacing: 0.3em;
+            transition: all var(--duration-fast) var(--ease-smooth);
+        }
+
+        .login-input:focus {
+            border-color: var(--text-primary);
+            background: var(--bg-elevated);
+        }
+
+        .login-input::placeholder {
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .login-input.error {
+            border-color: #dc2626;
+            animation: shake 0.4s var(--ease-out);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 15px;
+            font-family: inherit;
+            font-weight: 600;
+            color: var(--bg-primary);
+            background: var(--text-primary);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-smooth);
+        }
+
+        .login-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-error {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: var(--radius-sm);
+            color: #dc2626;
+            font-size: 13px;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--duration-fast);
+        }
+
+        .login-error.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .login-footer {
+            position: absolute;
+            bottom: 32px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════════════════════════
+         LOGIN SCREEN
+         ═══════════════════════════════════════════════════════════════ -->
+    <div class="login-screen" id="loginScreen">
+        <h1 class="login-logo">Chronos<span class="logo-dot"></span></h1>
+        <p class="login-subtitle">Introduce tu código de acceso</p>
+        
+        <form class="login-form" id="loginForm">
+            <div class="login-field">
+                <label class="login-label">Código</label>
+                <input type="password" 
+                       class="login-input" 
+                       id="loginCode" 
+                       placeholder="••••••" 
+                       autocomplete="off"
+                       required>
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">Acceder</button>
+            <div class="login-error" id="loginError">Código incorrecto</div>
+        </form>
+        
+        <p class="login-footer">Manuel Sánchez Franco</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         MAIN APP (hidden until login)
+         ═══════════════════════════════════════════════════════════════ -->
+    <div class="app" id="mainApp" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="brand">
+                <h1 class="logo">Chronos<span class="logo-dot"></span></h1>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="btnToday" aria-label="Ir a hoy">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" id="btnSettings" aria-label="Ajustes">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="1"/>
+                        <circle cx="12" cy="5" r="1"/>
+                        <circle cx="12" cy="19" r="1"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Current Date Display -->
+        <div class="current-date">
+            <span class="current-day" id="currentDay"></span>
+            <div class="current-info">
+                <span class="current-weekday" id="currentWeekday"></span>
+                <span class="current-month" id="currentMonth"></span>
+            </div>
+        </div>
+
+        <!-- Date Carousel -->
+        <div class="date-carousel">
+            <div class="dates-track" id="datesTrack"></div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-wrapper">
+            <div class="timeline" id="timeline"></div>
+        </div>
+
+        <!-- FAB -->
+        <div class="fab-container">
+            <button class="fab" id="fab" aria-label="Nueva anotación">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <!-- Modal Sheet -->
+    <div class="modal-sheet" id="modalSheet">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <h2 class="modal-title" id="modalTitle">Nueva anotación</h2>
+            <button class="modal-close" id="modalClose" aria-label="Cerrar">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <form id="eventForm">
+            <input type="hidden" id="eventId">
+            
+            <div class="form-field">
+                <label class="field-label">Descripción</label>
+                <input type="text" class="field-input" id="eventText" placeholder="¿Qué tienes planeado?" required autocomplete="off">
+            </div>
+
+            <div class="field-row">
+                <div class="form-field">
+                    <label class="field-label">Fecha</label>
+                    <input type="date" class="field-input" id="eventDate" required>
+                </div>
+                <div class="form-field">
+                    <label class="field-label">Hora</label>
+                    <input type="time" class="field-input" id="eventTime" required>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label class="field-label">Categoría</label>
+                <div class="category-pills">
+                    <button type="button" class="pill" data-cat="work">
+                        <span class="pill-dot"></span>Trabajo
+                    </button>
+                    <button type="button" class="pill" data-cat="admin">
+                        <span class="pill-dot"></span>Admin
+                    </button>
+                    <button type="button" class="pill" data-cat="academic">
+                        <span class="pill-dot"></span>Académico
+                    </button>
+                    <button type="button" class="pill" data-cat="research">
+                        <span class="pill-dot"></span>Investigación
+                    </button>
+                    <button type="button" class="pill" data-cat="personal">
+                        <span class="pill-dot"></span>Personal
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label class="field-label">Notas</label>
+                <input type="text" class="field-input" id="eventNotes" placeholder="Detalles adicionales..." autocomplete="off">
+            </div>
+
+            <button type="submit" class="btn-primary" id="btnSubmit">Guardar anotación</button>
+            <button type="button" class="btn-danger" id="btnDelete" style="display: none;">Eliminar</button>
+        </form>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h2 class="settings-title">Ajustes</h2>
+            <button class="modal-close" id="settingsClose" aria-label="Cerrar">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-label">Datos</div>
+            <button class="settings-btn" id="btnSync">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M23 4v6h-6"/>
+                    <path d="M1 20v-6h6"/>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+                <span class="settings-btn-text">Sincronizar</span>
+            </button>
+            <button class="settings-btn" id="btnExport">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span class="settings-btn-text">Exportar JSON</span>
+            </button>
+            <button class="settings-btn" id="btnImport">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <span class="settings-btn-text">Importar JSON</span>
+            </button>
+            <input type="file" class="hidden-input" id="fileInput" accept=".json">
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-label">Estadísticas</div>
+            <div class="settings-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Total anotaciones</span>
+                    <span class="stat-value" id="statTotal">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Esta semana</span>
+                    <span class="stat-value" id="statWeek">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Pendientes hoy</span>
+                    <span class="stat-value" id="statToday">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-label">Información</div>
+            <button class="settings-btn" style="pointer-events: none;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <div>
+                    <div class="settings-btn-text">Chronos v2.0</div>
+                    <div class="settings-btn-hint">Diseñado con precisión</div>
+                </div>
+            </button>
+            <button class="settings-btn" style="pointer-events: none;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <div>
+                    <div class="settings-btn-text">Manuel Sánchez Franco</div>
+                    <div class="settings-btn-hint">Autor</div>
+                </div>
+            </button>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-label">Sesión</div>
+            <button class="settings-btn" id="btnLogout" style="color: #dc2626;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span class="settings-btn-text">Cerrar sesión</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ══════════════════════════════════════════════════════════════
+        // CHRONOS - Award-Winning Timeline Application
+        // ══════════════════════════════════════════════════════════════
+
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw48_LgmJM4tSC5k86MYljl_m_THQTuPEv8aj56E3Y05Oh2dF1dcl3uN-K-3v0rJVmlww/exec';
+
+        // ══════════════════════════════════════════════════════════════
+        // AUTHENTICATION
+        // ══════════════════════════════════════════════════════════════
+
+        const Auth = {
+            el: {},
+
+            init() {
+                this.el = {
+                    loginScreen: document.getElementById('loginScreen'),
+                    loginForm: document.getElementById('loginForm'),
+                    loginCode: document.getElementById('loginCode'),
+                    loginBtn: document.getElementById('loginBtn'),
+                    loginError: document.getElementById('loginError'),
+                    mainApp: document.getElementById('mainApp')
+                };
+
+                // Comprobar si ya hay sesión válida
+                if (this.checkSession()) {
+                    this.showApp();
+                } else {
+                    this.bindEvents();
+                }
+            },
+
+            checkSession() {
+                const session = localStorage.getItem('chronos_session');
+                if (session) {
+                    try {
+                        const data = JSON.parse(session);
+                        // Sesión válida por 7 días
+                        if (data.expires && data.expires > Date.now()) {
+                            return true;
+                        }
+                    } catch (e) {}
+                }
+                return false;
+            },
+
+            saveSession() {
+                const expires = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 días
+                localStorage.setItem('chronos_session', JSON.stringify({ expires }));
+            },
+
+            clearSession() {
+                localStorage.removeItem('chronos_session');
+            },
+
+            bindEvents() {
+                this.el.loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.verifyCode();
+                });
+            },
+
+            verifyCode() {
+                const code = this.el.loginCode.value.trim();
+                
+                if (!code) return;
+
+                this.el.loginBtn.disabled = true;
+                this.el.loginBtn.textContent = 'Verificando...';
+                this.el.loginError.classList.remove('visible');
+                this.el.loginCode.classList.remove('error');
+
+                // Enviar código a Google Apps Script para validar
+                const callbackName = 'authCallback_' + Date.now();
+                
+                window[callbackName] = (response) => {
+                    if (response && response.valid === true) {
+                        this.saveSession();
+                        this.showApp();
+                    } else {
+                        this.showError();
+                    }
+                    
+                    delete window[callbackName];
+                    const script = document.getElementById(callbackName);
+                    if (script) script.remove();
+                };
+
+                const script = document.createElement('script');
+                script.id = callbackName;
+                script.src = GOOGLE_SCRIPT_URL + '?action=auth&code=' + encodeURIComponent(code) + '&callback=' + callbackName;
+                script.onerror = () => {
+                    this.showError();
+                    delete window[callbackName];
+                    script.remove();
+                };
+                document.body.appendChild(script);
+
+                // Timeout de seguridad
+                setTimeout(() => {
+                    if (window[callbackName]) {
+                        this.showError();
+                        delete window[callbackName];
+                        const s = document.getElementById(callbackName);
+                        if (s) s.remove();
+                    }
+                }, 10000);
+            },
+
+            showError() {
+                this.el.loginBtn.disabled = false;
+                this.el.loginBtn.textContent = 'Acceder';
+                this.el.loginError.classList.add('visible');
+                this.el.loginCode.classList.add('error');
+                this.el.loginCode.value = '';
+                this.el.loginCode.focus();
+            },
+
+            showApp() {
+                this.el.loginScreen.classList.add('hidden');
+                this.el.mainApp.style.display = 'flex';
+                App.init();
+            },
+
+            logout() {
+                this.clearSession();
+                location.reload();
+            }
+        };
+
+        // ══════════════════════════════════════════════════════════════
+        // MAIN APPLICATION
+        // ══════════════════════════════════════════════════════════════
+
+        const App = {
+            // State
+            state: {
+                selectedDate: new Date().toISOString().split('T')[0],
+                selectedCategory: 'work',
+                editingId: null,
+                events: [],
+                isModalOpen: false,
+                isSettingsOpen: false
+            },
+
+            // Categories
+            categories: {
+                work: { label: 'Trabajo', color: 'var(--cat-work)' },
+                admin: { label: 'Administrativo', color: 'var(--cat-admin)' },
+                academic: { label: 'Académico', color: 'var(--cat-academic)' },
+                research: { label: 'Investigación', color: 'var(--cat-research)' },
+                personal: { label: 'Personal', color: 'var(--cat-personal)' }
+            },
+
+            // Time slots
+            timeSlots: [
+                { label: '6 AM', hour: 6 },
+                { label: '8 AM', hour: 8 },
+                { label: '10 AM', hour: 10 },
+                { label: '12 PM', hour: 12 },
+                { label: '2 PM', hour: 14 },
+                { label: '4 PM', hour: 16 },
+                { label: '6 PM', hour: 18 },
+                { label: '8 PM', hour: 20 },
+                { label: '10 PM', hour: 22 }
+            ],
+
+            // DOM Elements
+            el: {},
+
+            // ──────────────────────────────────────────────────────────
+            // INITIALIZATION
+            // ──────────────────────────────────────────────────────────
+
+            init() {
+                this.cacheElements();
+                this.loadData();
+                this.render();
+                this.bindEvents();
+                this.scrollToToday();
+            },
+
+            cacheElements() {
+                this.el = {
+                    currentDay: document.getElementById('currentDay'),
+                    currentWeekday: document.getElementById('currentWeekday'),
+                    currentMonth: document.getElementById('currentMonth'),
+                    datesTrack: document.getElementById('datesTrack'),
+                    timeline: document.getElementById('timeline'),
+                    fab: document.getElementById('fab'),
+                    modalBackdrop: document.getElementById('modalBackdrop'),
+                    modalSheet: document.getElementById('modalSheet'),
+                    modalTitle: document.getElementById('modalTitle'),
+                    modalClose: document.getElementById('modalClose'),
+                    eventForm: document.getElementById('eventForm'),
+                    eventId: document.getElementById('eventId'),
+                    eventText: document.getElementById('eventText'),
+                    eventDate: document.getElementById('eventDate'),
+                    eventTime: document.getElementById('eventTime'),
+                    eventNotes: document.getElementById('eventNotes'),
+                    btnSubmit: document.getElementById('btnSubmit'),
+                    btnDelete: document.getElementById('btnDelete'),
+                    btnToday: document.getElementById('btnToday'),
+                    btnSettings: document.getElementById('btnSettings'),
+                    settingsPanel: document.getElementById('settingsPanel'),
+                    settingsClose: document.getElementById('settingsClose'),
+                    btnExport: document.getElementById('btnExport'),
+                    btnImport: document.getElementById('btnImport'),
+                    btnSync: document.getElementById('btnSync'),
+                    btnLogout: document.getElementById('btnLogout'),
+                    fileInput: document.getElementById('fileInput'),
+                    statTotal: document.getElementById('statTotal'),
+                    statWeek: document.getElementById('statWeek'),
+                    statToday: document.getElementById('statToday'),
+                    toast: document.getElementById('toast'),
+                    pills: document.querySelectorAll('.pill')
+                };
+            },
+
+            // ──────────────────────────────────────────────────────────
+            // DATA PERSISTENCE - GOOGLE SHEETS
+            // ──────────────────────────────────────────────────────────
+
+            parseGoogleDate(dateValue) {
+                if (!dateValue) return '';
+                // Si viene como ISO string (2026-01-07T23:00:00.000Z)
+                if (typeof dateValue === 'string' && dateValue.includes('T')) {
+                    const d = new Date(dateValue);
+                    // Ajustar timezone
+                    const year = d.getUTCFullYear();
+                    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+                    const day = String(d.getUTCDate() + 1).padStart(2, '0'); // +1 por timezone
+                    return `${year}-${month}-${day}`;
+                }
+                // Si ya viene bien formateado
+                if (typeof dateValue === 'string' && dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    return dateValue;
+                }
+                return String(dateValue);
+            },
+
+            parseGoogleTime(timeValue) {
+                if (!timeValue) return '09:00';
+                // Si viene como ISO string (1899-12-30T09:14:44.000Z)
+                if (typeof timeValue === 'string' && timeValue.includes('T')) {
+                    const d = new Date(timeValue);
+                    const hours = String(d.getUTCHours()).padStart(2, '0');
+                    const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+                    return `${hours}:${minutes}`;
+                }
+                // Si ya viene bien formateado (HH:MM)
+                if (typeof timeValue === 'string' && timeValue.match(/^\d{2}:\d{2}/)) {
+                    return timeValue.substring(0, 5);
+                }
+                return String(timeValue);
+            },
+
+            loadData() {
+                // Primero cargar desde localStorage
+                const stored = localStorage.getItem('chronos_data');
+                if (stored) {
+                    try {
+                        this.state.events = JSON.parse(stored);
+                    } catch (e) {
+                        this.state.events = [];
+                    }
+                }
+                
+                // Luego sincronizar con Google Sheets
+                this.fetchFromCloud();
+            },
+
+            fetchFromCloud() {
+                const callbackName = 'chronosCallback_' + Date.now();
+                
+                window[callbackName] = (data) => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        this.state.events = data.filter(row => row.id).map(row => ({
+                            id: String(row.id || ''),
+                            date: this.parseGoogleDate(row.date),
+                            time: this.parseGoogleTime(row.time),
+                            text: String(row.text || ''),
+                            category: String(row.category || 'personal'),
+                            notes: String(row.notes || '')
+                        }));
+                        localStorage.setItem('chronos_data', JSON.stringify(this.state.events));
+                        this.render();
+                    }
+                    delete window[callbackName];
+                    const script = document.getElementById(callbackName);
+                    if (script) script.remove();
+                };
+
+                const script = document.createElement('script');
+                script.id = callbackName;
+                script.src = GOOGLE_SCRIPT_URL + '?callback=' + callbackName;
+                script.onerror = () => {
+                    delete window[callbackName];
+                    script.remove();
+                };
+                document.body.appendChild(script);
+            },
+
+            saveData() {
+                localStorage.setItem('chronos_data', JSON.stringify(this.state.events));
+            },
+
+            saveToCloud(eventData, action) {
+                const params = new URLSearchParams({
+                    action: action,
+                    id: eventData.id || '',
+                    date: eventData.date || '',
+                    time: eventData.time || '',
+                    text: eventData.text || '',
+                    category: eventData.category || '',
+                    notes: eventData.notes || ''
+                });
+                
+                const img = new Image();
+                img.src = GOOGLE_SCRIPT_URL + '?' + params.toString();
+            },
+
+            syncFromCloud() {
+                this.showToast('Sincronizando...');
+                this.fetchFromCloud();
+                setTimeout(() => this.showToast('Sincronizado'), 1000);
+            },
+
+            exportData() {
+                const dataStr = JSON.stringify(this.state.events, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const timestamp = new Date().toISOString().split('T')[0];
+                a.href = url;
+                a.download = `chronos_backup_${timestamp}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                this.showToast('Archivo exportado');
+            },
+
+            importData(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (Array.isArray(imported)) {
+                            // Merge with existing, avoiding duplicates
+                            const existingIds = new Set(this.state.events.map(ev => ev.id));
+                            const newEvents = imported.filter(ev => !existingIds.has(ev.id));
+                            this.state.events = [...this.state.events, ...newEvents];
+                            this.saveData();
+                            this.render();
+                            this.showToast(`${newEvents.length} anotaciones importadas`);
+                        } else {
+                            this.showToast('Formato inválido');
+                        }
+                    } catch (err) {
+                        this.showToast('Error al importar');
+                    }
+                };
+                reader.readAsText(file);
+            },
+
+            // ──────────────────────────────────────────────────────────
+            // UTILITIES
+            // ──────────────────────────────────────────────────────────
+
+            generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+            },
+
+            formatDateInfo(dateStr) {
+                const date = new Date(dateStr + 'T12:00:00');
+                const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                const daysShort = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+                const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                
+                return {
+                    day: date.getDate(),
+                    dayShort: daysShort[date.getDay()],
+                    dayFull: days[date.getDay()],
+                    month: months[date.getMonth()],
+                    year: date.getFullYear()
+                };
+            },
+
+            formatTime(timeStr) {
+                const [h, m] = timeStr.split(':');
+                const hour = parseInt(h);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const h12 = hour % 12 || 12;
+                return `${h12}:${m} ${ampm}`;
+            },
+
+            getDateRange(center, before = 15, after = 30) {
+                const dates = [];
+                const c = new Date(center + 'T12:00:00');
+                for (let i = -before; i <= after; i++) {
+                    const d = new Date(c);
+                    d.setDate(d.getDate() + i);
+                    dates.push(d.toISOString().split('T')[0]);
+                }
+                return dates;
+            },
+
+            isToday(dateStr) {
+                return dateStr === new Date().toISOString().split('T')[0];
+            },
+
+            getTimeSlotIndex(timeStr) {
+                const hour = parseInt(timeStr.split(':')[0]);
+                for (let i = this.timeSlots.length - 1; i >= 0; i--) {
+                    if (hour >= this.timeSlots[i].hour) return i;
+                }
+                return 0;
+            },
+
+            getWeekRange() {
+                const now = new Date();
+                const start = new Date(now);
+                start.setDate(now.getDate() - now.getDay());
+                const end = new Date(start);
+                end.setDate(start.getDate() + 6);
+                return {
+                    start: start.toISOString().split('T')[0],
+                    end: end.toISOString().split('T')[0]
+                };
+            },
+
+            haptic(style = 'light') {
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(style === 'light' ? 10 : style === 'medium' ? 20 : 30);
+                }
+            },
+
+            // ──────────────────────────────────────────────────────────
+            // RENDERING
+            // ──────────────────────────────────────────────────────────
+
+            render() {
+                this.renderCurrentDate();
+                this.renderDatesCarousel();
+                this.renderTimeline();
+                this.updateStats();
+            },
+
+            renderCurrentDate() {
+                const info = this.formatDateInfo(this.state.selectedDate);
+                this.el.currentDay.textContent = info.day;
+                this.el.currentWeekday.textContent = info.dayFull;
+                this.el.currentMonth.textContent = `${info.month} ${info.year}`;
+            },
+
+            renderDatesCarousel() {
+                const dates = this.getDateRange(this.state.selectedDate);
+                const today = new Date().toISOString().split('T')[0];
+
+                this.el.datesTrack.innerHTML = dates.map(date => {
+                    const info = this.formatDateInfo(date);
+                    const isSelected = date === this.state.selectedDate;
+                    const isTodayDate = date === today;
+                    const hasEvents = this.state.events.some(e => e.date === date);
+
+                    return `
+                        <button class="date-chip ${isSelected ? 'selected' : ''} ${isTodayDate ? 'today' : ''} ${hasEvents ? 'has-events' : ''}"
+                                data-date="${date}">
+                            <span class="chip-day">${info.dayShort}</span>
+                            <span class="chip-num">${info.day}</span>
+                            <span class="chip-indicator"></span>
+                        </button>
+                    `;
+                }).join('');
+
+                // Scroll to selected
+                requestAnimationFrame(() => {
+                    const selected = this.el.datesTrack.querySelector('.selected');
+                    if (selected) {
+                        selected.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    }
+                });
+            },
+
+            renderTimeline() {
+                const dayEvents = this.state.events
+                    .filter(e => e.date === this.state.selectedDate)
+                    .sort((a, b) => a.time.localeCompare(b.time));
+
+                if (dayEvents.length === 0) {
+                    this.el.timeline.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-illustration">
+                                <div class="empty-circle">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="empty-title">Día libre</h3>
+                            <p class="empty-subtitle">No hay anotaciones para este día</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Group by time slot
+                const grouped = {};
+                this.timeSlots.forEach((_, i) => grouped[i] = []);
+                dayEvents.forEach(ev => {
+                    const idx = this.getTimeSlotIndex(ev.time);
+                    grouped[idx].push(ev);
+                });
+
+                this.el.timeline.innerHTML = this.timeSlots.map((slot, i) => {
+                    const events = grouped[i];
+                    const hasEvents = events.length > 0;
+
+                    return `
+                        <div class="time-section ${hasEvents ? 'has-events' : ''}">
+                            <div class="time-marker"><span>${slot.label}</span></div>
+                            <div class="time-dot"></div>
+                            <div class="events-list">
+                                ${events.map((ev, j) => `
+                                    <div class="event-card" 
+                                         data-id="${ev.id}"
+                                         style="--event-color: ${this.categories[ev.category]?.color || 'var(--text-muted)'}; animation-delay: ${j * 0.06}s">
+                                        <div class="event-header">
+                                            <span class="event-time">${this.formatTime(ev.time)}</span>
+                                            <span class="event-badge">${this.categories[ev.category]?.label || ev.category}</span>
+                                        </div>
+                                        <p class="event-title">${ev.text}</p>
+                                        ${ev.notes ? `<p class="event-notes">${ev.notes}</p>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            updateStats() {
+                const today = new Date().toISOString().split('T')[0];
+                const week = this.getWeekRange();
+
+                this.el.statTotal.textContent = this.state.events.length;
+                this.el.statWeek.textContent = this.state.events.filter(e => 
+                    e.date >= week.start && e.date <= week.end
+                ).length;
+                this.el.statToday.textContent = this.state.events.filter(e => e.date === today).length;
+            },
+
+            scrollToToday() {
+                requestAnimationFrame(() => {
+                    const todayChip = this.el.datesTrack.querySelector('.today');
+                    if (todayChip) {
+                        todayChip.scrollIntoView({ behavior: 'instant', inline: 'center', block: 'nearest' });
+                    }
+                });
+            },
+
+            // ──────────────────────────────────────────────────────────
+            // MODAL HANDLING
+            // ──────────────────────────────────────────────────────────
+
+            openModal(editing = false) {
+                this.state.isModalOpen = true;
+
+                if (editing) {
+                    this.el.modalTitle.textContent = 'Editar anotación';
+                    this.el.btnSubmit.textContent = 'Actualizar';
+                    this.el.btnDelete.style.display = 'block';
+                } else {
+                    this.el.modalTitle.textContent = 'Nueva anotación';
+                    this.el.btnSubmit.textContent = 'Guardar anotación';
+                    this.el.btnDelete.style.display = 'none';
+                    this.el.eventDate.value = this.state.selectedDate;
+                    this.el.eventTime.value = '09:00';
+                    this.selectCategory('work');
+                }
+
+                this.el.modalBackdrop.classList.add('visible');
+                this.el.modalSheet.classList.add('visible');
+                this.el.fab.classList.add('active');
+
+                setTimeout(() => this.el.eventText.focus(), 350);
+                this.haptic('medium');
+            },
+
+            closeModal() {
+                this.state.isModalOpen = false;
+                this.state.editingId = null;
+
+                this.el.modalBackdrop.classList.remove('visible');
+                this.el.modalSheet.classList.remove('visible');
+                this.el.fab.classList.remove('active');
+                this.el.eventForm.reset();
+
+                this.haptic('light');
+            },
+
+            selectCategory(cat) {
+                this.state.selectedCategory = cat;
+                this.el.pills.forEach(pill => {
+                    pill.classList.toggle('active', pill.dataset.cat === cat);
+                });
+            },
+
+            populateModal(event) {
+                this.state.editingId = event.id;
+                this.el.eventId.value = event.id;
+                this.el.eventText.value = event.text;
+                this.el.eventDate.value = event.date;
+                this.el.eventTime.value = event.time;
+                this.el.eventNotes.value = event.notes || '';
+                this.selectCategory(event.category);
+            },
+
+            // ──────────────────────────────────────────────────────────
+            // SETTINGS PANEL
+            // ──────────────────────────────────────────────────────────
+
+            openSettings() {
+                this.state.isSettingsOpen = true;
+                this.el.settingsPanel.classList.add('visible');
+                this.el.modalBackdrop.classList.add('visible');
+                this.updateStats();
+                this.haptic('light');
+            },
+
+            closeSettings() {
+                this.state.isSettingsOpen = false;
+                this.el.settingsPanel.classList.remove('visible');
+                this.el.modalBackdrop.classList.remove('visible');
+                this.haptic('light');
+            },
+
+            // ──────────────────────────────────────────────────────────
+            // TOAST
+            // ──────────────────────────────────────────────────────────
+
+            showToast(message) {
+                this.el.toast.textContent = message;
+                this.el.toast.classList.add('visible');
+                setTimeout(() => this.el.toast.classList.remove('visible'), 2500);
+            },
+
+            // ──────────────────────────────────────────────────────────
+            // EVENT BINDING
+            // ──────────────────────────────────────────────────────────
+
+            bindEvents() {
+                // Date selection
+                this.el.datesTrack.addEventListener('click', (e) => {
+                    const chip = e.target.closest('.date-chip');
+                    if (chip) {
+                        this.state.selectedDate = chip.dataset.date;
+                        this.render();
+                        this.haptic('light');
+                    }
+                });
+
+                // Event card click
+                this.el.timeline.addEventListener('click', (e) => {
+                    const card = e.target.closest('.event-card');
+                    if (card) {
+                        const event = this.state.events.find(ev => ev.id === card.dataset.id);
+                        if (event) {
+                            this.populateModal(event);
+                            this.openModal(true);
+                        }
+                    }
+                });
+
+                // FAB
+                this.el.fab.addEventListener('click', () => {
+                    if (this.state.isModalOpen) {
+                        this.closeModal();
+                    } else {
+                        this.openModal(false);
+                    }
+                });
+
+                // Modal close
+                this.el.modalClose.addEventListener('click', () => this.closeModal());
+                this.el.modalBackdrop.addEventListener('click', () => {
+                    if (this.state.isModalOpen) this.closeModal();
+                    if (this.state.isSettingsOpen) this.closeSettings();
+                });
+
+                // Category pills
+                this.el.pills.forEach(pill => {
+                    pill.addEventListener('click', () => {
+                        this.selectCategory(pill.dataset.cat);
+                        this.haptic('light');
+                    });
+                });
+
+                // Form submit
+                this.el.eventForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+
+                    const eventData = {
+                        id: this.state.editingId || this.generateId(),
+                        text: this.el.eventText.value.trim(),
+                        date: this.el.eventDate.value,
+                        time: this.el.eventTime.value,
+                        category: this.state.selectedCategory,
+                        notes: this.el.eventNotes.value.trim()
+                    };
+
+                    const isUpdate = !!this.state.editingId;
+
+                    if (isUpdate) {
+                        const idx = this.state.events.findIndex(ev => ev.id === this.state.editingId);
+                        if (idx !== -1) {
+                            this.state.events[idx] = eventData;
+                        }
+                    } else {
+                        this.state.events.push(eventData);
+                    }
+
+                    this.saveData();
+                    this.state.selectedDate = eventData.date;
+                    this.render();
+                    this.closeModal();
+                    this.haptic('medium');
+
+                    // Guardar en la nube
+                    this.saveToCloud(eventData, isUpdate ? 'update' : 'add');
+                    this.showToast(isUpdate ? 'Actualizado' : 'Guardado');
+                });
+
+                // Delete
+                this.el.btnDelete.addEventListener('click', () => {
+                    if (this.state.editingId && confirm('¿Eliminar esta anotación?')) {
+                        const idToDelete = this.state.editingId;
+                        this.state.events = this.state.events.filter(ev => ev.id !== idToDelete);
+                        this.saveData();
+                        this.render();
+                        this.closeModal();
+                        this.haptic('medium');
+
+                        // Eliminar en la nube
+                        this.saveToCloud({ id: idToDelete }, 'delete');
+                        this.showToast('Eliminado');
+                    }
+                });
+
+                // Today button
+                this.el.btnToday.addEventListener('click', () => {
+                    this.state.selectedDate = new Date().toISOString().split('T')[0];
+                    this.render();
+                    this.haptic('light');
+                });
+
+                // Settings
+                this.el.btnSettings.addEventListener('click', () => this.openSettings());
+                this.el.settingsClose.addEventListener('click', () => this.closeSettings());
+
+                // Sync button
+                this.el.btnSync.addEventListener('click', () => {
+                    this.syncFromCloud();
+                    this.closeSettings();
+                });
+
+                // Logout button
+                this.el.btnLogout.addEventListener('click', () => {
+                    if (confirm('¿Cerrar sesión?')) {
+                        Auth.logout();
+                    }
+                });
+
+                // Export / Import
+                this.el.btnExport.addEventListener('click', () => {
+                    this.exportData();
+                    this.closeSettings();
+                });
+
+                this.el.btnImport.addEventListener('click', () => {
+                    this.el.fileInput.click();
+                });
+
+                this.el.fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        this.importData(e.target.files[0]);
+                        e.target.value = '';
+                        this.closeSettings();
+                    }
+                });
+
+                // Swipe navigation
+                let touchStartX = 0;
+                let touchStartY = 0;
+
+                this.el.timeline.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                    touchStartY = e.changedTouches[0].screenY;
+                }, { passive: true });
+
+                this.el.timeline.addEventListener('touchend', (e) => {
+                    const deltaX = touchStartX - e.changedTouches[0].screenX;
+                    const deltaY = touchStartY - e.changedTouches[0].screenY;
+
+                    // Only trigger if horizontal swipe is dominant
+                    if (Math.abs(deltaX) > 60 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+                        const current = new Date(this.state.selectedDate + 'T12:00:00');
+                        current.setDate(current.getDate() + (deltaX > 0 ? 1 : -1));
+                        this.state.selectedDate = current.toISOString().split('T')[0];
+                        this.render();
+                        this.haptic('light');
+                    }
+                }, { passive: true });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        if (this.state.isModalOpen) this.closeModal();
+                        if (this.state.isSettingsOpen) this.closeSettings();
+                    }
+                    if (e.key === 'n' && !this.state.isModalOpen && !this.state.isSettingsOpen) {
+                        e.preventDefault();
+                        this.openModal(false);
+                    }
+                });
+            }
+        };
+
+        // Initialize Authentication first
+        document.addEventListener('DOMContentLoaded', () => Auth.init());
+    </script>
+</body>
+</html>
